@@ -1,0 +1,44 @@
+{
+  "name": "Map Background Switcher",
+  "version": "1.0",
+  "description": "An Oracle APEX region plugin that allows users to switch between different map background styles such as satellite, street, and terrain views in a dynamic and user-friendly way.",
+  "keywords": [
+    "map",
+    "background",
+    "switcher",
+    "GIS",
+    "tiles",
+    "basemap",
+    "region plugin",
+    "Oracle APEX"
+  ],
+  "homepage": "https://github.com/AbjabjaSalahEddine/Map-Background-Switcher-Plugin",
+  "bugs": {
+    "url": "https://github.com/AbjabjaSalahEddine/Map-Background-Switcher-Plugin/issues",
+    "email": "abjabja_salaheddine@hotmail.com"
+  },
+  "license": "MIT",
+  "commercial": "No",
+  "author": {
+    "name": "Salah-Eddine ABJABJA",
+    "email": "abjabja_salaheddine@hotmail.com",
+    "url": "https://github.com/AbjabjaSalahEddine",
+    "donationUrl": "https://buymeacoffee.com/abjabjasalaheddine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AbjabjaSalahEddine/Map-Background-Switcher-Plugin.git"
+  },
+  "oracle": {
+    "versions": ["23ai"],
+    "apex": {
+      "versions": ["24.2"],
+      "plugin": {
+        "internalName": "MAP_BG_SWITCHER",
+        "type": "item",
+        "demo": "https://gd8453f98ce7e4e-xo9cnlh2n3sschli.adb.eu-amsterdam-1.oraclecloudapps.com/ords/r/dev/scratch/mbs-plugin",
+        "previewImage": "https://raw.githubusercontent.com/AbjabjaSalahEddine/Map-Background-Switcher-Plugin/refs/heads/main/how%20it%20looks.gif"
+      }
+    }
+  }
+}
