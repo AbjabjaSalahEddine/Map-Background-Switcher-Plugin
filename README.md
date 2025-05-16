@@ -1,5 +1,5 @@
-![Oracle](https://img.shields.io/badge/ORACLE-grey?style=for-the-badge)![APEX](https://img.shields.io/badge/APEX-brightgreen?style=for-the-badge)  ![Plug-in Type](https://img.shields.io/badge/Plug--in_Type-grey?style=for-the-badge)![Item](https://img.shields.io/badge/Item-blue?style=for-the-badge)
-
+![Oracle](https://img.shields.io/badge/ORACLE-grey?style=for-the-badge)![APEX](https://img.shields.io/badge/APEX-brightgreen?style=for-the-badge)
+![Plug-in Type](https://img.shields.io/badge/Plug--in_Type-grey?style=for-the-badge)![Item](https://img.shields.io/badge/Item-blue?style=for-the-badge)
 # 🗺️ APEX Map Background Switcher
 
 A custom Oracle APEX **item plugin** for switching the **raster** background layers of a map region at runtime.  
@@ -7,11 +7,9 @@ Perfect for users who need to toggle between base layers such as **Satellite**, 
 
 > ⚠️ **Note:** This plugin is designed to switch **raster tile layers only**. It does **not** support vector tiles.
 
----
-
 ## 🖼️ Preview
 
-![How it looks](./demo-preview.gif)
+![How it looks](./how%20it%20looks.gif)
 
 ---
 
