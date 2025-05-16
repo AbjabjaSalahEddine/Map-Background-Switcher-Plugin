@@ -1,0 +1,1 @@
+# Map-Background-Switcher-Plugin
