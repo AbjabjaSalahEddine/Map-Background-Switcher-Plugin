@@ -5,13 +5,11 @@
 A custom Oracle APEX **item plugin** for switching the **raster** background layers of a map region at runtime.  
 Perfect for users who need to toggle between base layers such as **Satellite**, **Streets**, or **Terrain**.
 
-> ⚠️ **Note:** This plugin is designed to switch **raster tile layers only**. It does **not** support vector tiles.
-
 ## 🖼️ Preview
-
 ![How it looks](./how%20it%20looks.gif)
 
----
+> ⚠️ **Note:** This plugin is designed to switch **raster tile layers only**. It does **not** support vector tiles.
+
 
 ## 📌 Features
 
@@ -19,16 +17,12 @@ Perfect for users who need to toggle between base layers such as **Satellite**, 
 - 🔄 Works with custom tile layers from SQL
 - ⚡ Lightweight and responsive
 - 🧩 Connects to any APEX map region using its Static ID
-- 🔁 AJAX refresh support
 
----
 
-## ⚙️ Plugin Attributes
+## 🔌 Plugin Attributes
+- **Source** – SQL query returning `label`, `source_id`, and `tiles_url` for each style.
+- **Map Region** –  Static ID of the APEX map region to apply the background change.
 
-| Attribute      | Description                                                              |
-| -------------- | ------------------------------------------------------------------------ |
-| **Source**     | SQL query returning `label`, `source_id`, and `tiles_url` for each style |
-| **Map Region** | Static ID of the APEX map region to apply the background change          |
 
 **SQL Query Format:**
 
@@ -38,7 +32,6 @@ Your query must return **three columns**:
 - `source_id`: Unique ID for internal tracking
 - `tiles_url`: Tile server URL (e.g., `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`)
 
----
 
 ## 🚀 Installation
 
@@ -48,7 +41,6 @@ Your query must return **three columns**:
 4. Set the **Map Region Static ID** to target the correct map.
 5. Enjoy a seamless map background switch experience.
 
----
 
 ## ⚠️ Limitations & Notes
 
@@ -57,7 +49,6 @@ Your query must return **three columns**:
 - ❌ Oracle’s **default & built-in base map backgrounds** may not be compatible due to integration issues.
 - 🗺️ This plugin works only with **raster tiles**, not vector tiles.
 
----
 
 ## 🧑‍💻 Author
 
