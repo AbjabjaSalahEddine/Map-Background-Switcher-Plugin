@@ -4,13 +4,16 @@
   "description": "An Oracle APEX region plugin that allows users to switch between different map background styles such as satellite, street, and terrain views in a dynamic and user-friendly way.",
   "keywords": [
     "map",
-    "background",
+    "map background switcher",
     "switcher",
+    "switch map background",
+    "background",
+    "map control",
     "GIS",
     "tiles",
     "basemap",
-    "region plugin",
-    "Oracle APEX"
+    "maptiles",
+    "item plugin"
   ],
   "homepage": "https://github.com/AbjabjaSalahEddine/Map-Background-Switcher-Plugin",
   "bugs": {
