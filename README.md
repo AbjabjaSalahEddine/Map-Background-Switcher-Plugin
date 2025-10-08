@@ -17,12 +17,11 @@ Perfect for users who need to toggle between base layers such as **Satellite**, 
 - 🗺️ Dynamically switch **raster** map backgrounds
 - 🔄 Works with custom tile layers from SQL
 - ⚡ Lightweight and responsive
-- 🧩 Connects to any APEX map region using its Static ID
+- 🧩 Connects to any APEX map region directly
 
 ## 🔌 Plugin Attributes
 
 - **Source** – SQL query returning `label`, `source_id`, and `tiles_url` for each style.
-- **Map Region** – Static ID of the APEX map region to apply the background change.
 
 **SQL Query Format:**
 

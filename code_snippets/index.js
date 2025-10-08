@@ -1,76 +1,66 @@
 window.mapBackgroundSwitcher = window.mapBackgroundSwitcher || {};
 
-window.mapBackgroundSwitcher.init = function (
+window.mapBackgroundSwitcher.init = async function (
   itemName,
   itemValue,
   sources,
   mapRegionId
 ) {
-  let tries = 0;
-  const maxTries = 6;
-  let map;
-
-  function tryGetMap() {
-    tries++;
-    const region = apex.region(mapRegionId);
-
-    if (region) {
-      try {
-        map = region.call("getMapObject");
-
-        const defaultSource = getDefaultMapSource(map);
-
-        // Start with the original sources
-        let allSources = [...sources];
-
-        // Check if defaultSource exists and is not already in the list
-        if (
-          defaultSource &&
-          !sources.some((s) => s.tiles_url === defaultSource.tiles_url)
-        ) {
-          allSources.unshift(defaultSource); // Add default source only if not already present
-        }
-
-        // Set item value based on what's in allSources
-        const matchingSource = allSources.find(
-          (s) => s.tiles_url === defaultSource.tiles_url
-        );
-        if (matchingSource) {
-          console.log(matchingSource.source_id);
-          apex.item(itemName).setValue(matchingSource.source_id);
-        }
-
-        // Add sources and layers
-        addSourcesToMap(map, allSources);
-        const control = createLayersControl(allSources, itemName, mapRegionId);
-        map.addControl(control, "top-right");
-
-        // Set initial visibility
-        setInitialLayerVisibility(
-          map,
-          allSources,
-          apex.item(itemName).getValue()
-        );
-      } catch (e) {
-        if (tries < maxTries) {
-          setTimeout(tryGetMap, 500);
-        } else {
-          console.error("Failed to get map object after max tries.", e);
-        }
+  var $region = $("#" + mapRegionId);
+  if (!$region.data("mbs-init")) {
+    $region.data("mbs-init", true);
+    $region.on("spatialmapinitialized.MAP_REGION", function (event) {
+      var map = apex.region(mapRegionId).call("getMapObject");
+      if (!map) {
+        console.error("Map could not be retrieved.");
+        return;
       }
-    } else {
-      if (tries < maxTries) {
-        setTimeout(tryGetMap, 500);
-      } else {
-        console.error(
-          `Map region '${mapRegionId}' not found after ${maxTries} attempts.`
-        );
-      }
-    }
+      const allSources = mergeSourcesWithDefault(sources, map);
+      addSourcesToMap(map, allSources, itemName);
+      const control = createLayersControl(allSources, itemName, mapRegionId);
+      map.addControl(control, "top-right");
+    });
+  }
+};
+
+function mergeSourcesWithDefault(sources, map) {
+  const defaultSource = getDefaultMapSource(map);
+
+  let updatedSources = sources.map((s) => ({ ...s, is_default: false }));
+  // Check if default source is already in the list
+  const match = updatedSources.find(
+    (s) => s.tiles_url === defaultSource.tiles_url
+  );
+
+  if (match) {
+    match.is_default = true;
+  } else {
+    defaultSource.is_default = true;
+    updatedSources.unshift(defaultSource);
   }
 
-  tryGetMap();
-};
+  return updatedSources;
+}
+
+function getDefaultMapSource(map) {
+  // Get all layers from the map
+  const layers = map.getStyle().layers;
+
+  // Find the first raster layer (typically the background)
+  const bgLayer = layers.find((layer) => layer.type === "raster");
+
+  if (bgLayer && bgLayer.source) {
+    const source = map.getSource(bgLayer.source);
+    if (source && source.tiles) {
+      return {
+        source_id: bgLayer.source,
+        tiles_url: source.tiles[0],
+        label: "Default Maptile",
+      };
+    }
+  }
+  return null;
+}
 
 function createLayersControl(sources, itemName, mapRegionId) {
   class LayersControl {
@@ -97,7 +87,7 @@ function createLayersControl(sources, itemName, mapRegionId) {
                     </svg>
                 </span>`;
 
-      const popup = createPopupPanel(sources, itemName, mapRegionId);
+      const popup = createPopupPanel(sources, itemName, map);
       popup.className = "layers-panel";
 
       button.addEventListener("click", (e) => {
@@ -113,6 +103,10 @@ function createLayersControl(sources, itemName, mapRegionId) {
 
       this._container.appendChild(button);
       button.appendChild(popup);
+
+      // link the radio input to the page item value
+      linkItemToRadio(itemName, map, sources);
+
       return this._container;
     }
 
@@ -125,17 +119,15 @@ function createLayersControl(sources, itemName, mapRegionId) {
   return new LayersControl();
 }
 
-function createPopupPanel(sources, itemName, mapRegionId) {
+function createPopupPanel(sources, itemName, map) {
   const panel = document.createElement("div");
   panel.className = "layers-panel";
 
   sources.forEach((source) => {
-    console.log(source);
-
     const label = document.createElement("label");
     const radio = document.createElement("input");
     radio.type = "radio";
-    radio.name = "map-source";
+    radio.name = "map-source-" + itemName;
     radio.value = source.source_id;
 
     if (source.source_id === apex.item(itemName).getValue()) {
@@ -144,8 +136,7 @@ function createPopupPanel(sources, itemName, mapRegionId) {
 
     radio.onchange = () => {
       apex.item(itemName).setValue(source.source_id);
-      // Update map layer visibility when selection changes
-      updateMapLayerVisibility(source.source_id, sources, mapRegionId);
+      // // Update map layer visibility when selection changes
       panel.classList.remove("show");
     };
 
@@ -157,70 +148,85 @@ function createPopupPanel(sources, itemName, mapRegionId) {
   return panel;
 }
 
-function getDefaultMapSource(map) {
-  // Get all layers from the map
-  const layers = map.getStyle().layers;
+function linkItemToRadio(itemName, map, sources) {
+  const hiddenInput = document.getElementById(itemName);
 
-  // Find the first raster layer (typically the background)
-  const bgLayer = layers.find((layer) => layer.type === "raster");
+  // Cache its current value
+  let _value = hiddenInput.value;
 
-  if (bgLayer && bgLayer.source) {
-    const source = map.getSource(bgLayer.source);
-    if (source && source.tiles) {
-      return {
-        source_id: source.id,
-        tiles_url: source.tiles[0],
-        label: "Default Maptile",
-      };
-    }
-  }
-  map.removeLayer(bgLayer.id);
-  return null;
+  // Override its `.value` property to watch for changes
+  Object.defineProperty(hiddenInput, "value", {
+    get() {
+      return _value;
+    },
+    set(newValue) {
+      _value = newValue;
+      updateMapLayerVisibility(this.value, map, sources);
+      // Sync radio buttons
+      const radios = document.querySelectorAll(
+        'input[name="map-source-' + itemName + '"]'
+      );
+      radios.forEach((radio) => {
+        radio.checked = radio.value === newValue;
+      });
+
+      // Optional: fire a change event
+      hiddenInput.dispatchEvent(new Event("change"));
+    },
+  });
+
+  // Listen for radio button changes to update hidden input
+  document
+    .querySelectorAll('input[name="map-source-' + itemName + '"]')
+    .forEach((radio) => {
+      radio.addEventListener("change", function () {
+        if (this.checked) {
+          hiddenInput.value = this.value;
+        }
+      });
+    });
 }
 
-function addSourcesToMap(map, sources) {
+function addSourcesToMap(map, sources, itemName) {
   sources.forEach((source) => {
-    if (!map.getSource(source.source_id)) {
-      map.addSource(source.source_id, {
+    const sourceId = source.source_id;
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, {
         type: "raster",
         tiles: [source.tiles_url],
         tileSize: 512,
       });
-
-      // Add layer only if it doesn't exist (skip for default background)
-      if (!map.getLayer(source.source_id)) {
-        map.addLayer({
-          id: source.source_id,
-          type: "raster",
-          source: source.source_id,
-          layout: {
-            visibility: "none", // Hide initially
-          },
-        });
-      }
     }
+    map.addLayer({
+      id: sourceId,
+      type: "raster",
+      source: sourceId,
+      layout: {
+        visibility: getVisibility(source, itemName, map),
+      },
+    });
   });
+  // remove any raster that has no layout property
 }
 
-function setInitialLayerVisibility(map, sources, activeSourceId) {
+function getVisibility(source, itemName, map) {
+  if (source.is_default) {
+    apex.item(itemName).setValue(source.source_id);
+    map
+      .getStyle()
+      .layers.filter((layer) => layer.type === "raster" && !layer.layout)
+      // .forEach(layer => map.removeLayer(layer.id));
+      .forEach((layer) =>
+        map.setLayoutProperty(layer.id, "visibility", "none")
+      );
+    return "visible";
+  }
+  return "none";
+}
+
+function updateMapLayerVisibility(activeSourceId, map, sources) {
   sources.forEach((source) => {
     const visibility = source.source_id === activeSourceId ? "visible" : "none";
-    if (map.getLayer(source.source_id)) {
-      map.setLayoutProperty(source.source_id, "visibility", visibility);
-    }
+    map.setLayoutProperty(source.source_id, "visibility", visibility);
   });
-}
-
-function updateMapLayerVisibility(activeSourceId, sources, mapRegionId) {
-  const region = apex.region(mapRegionId);
-  map = region.call("getMapObject");
-  if (map) {
-    sources.forEach((source) => {
-      const visibility =
-        source.source_id === activeSourceId ? "visible" : "none";
-      if (map.getLayer(source.source_id)) {
-        map.setLayoutProperty(source.source_id, "visibility", visibility);
-      }
-    });
-  }
 }

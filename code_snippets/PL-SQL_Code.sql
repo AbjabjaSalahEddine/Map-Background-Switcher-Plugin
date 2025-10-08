@@ -7,7 +7,9 @@ as
     l_item_name        varchar2(4000) := apex_plugin.get_input_name_for_page_item(false);
     l_item_value       varchar2(4000) := p_param.value;
     attr_sql_query     varchar2(4000) := p_item.attributes.get_varchar2('source');
-    attr_map_region_id varchar2(4000) := p_item.attributes.get_varchar2('map_region');
+    l_parent_region_id number := p_item.region_id;
+    l_region_static_id apex_application_page_regions.static_id%type;
+    l_region_type_name varchar2(100);
 
     l_label            varchar2(4000);
     l_source_id        varchar2(4000);
@@ -17,6 +19,15 @@ as
     l_html             clob := '';
     l_json_sources     clob := '';
 begin
+    select static_id, source_type
+      into l_region_static_id, l_region_type_name
+      from apex_application_page_regions
+     where application_id = :APP_ID     
+       and region_id      = l_parent_region_id;
+
+    if l_region_type_name <> 'Map' then  
+        raise_application_error(-20000, 'ERROR: The map page item "' || l_item_name || '" must be placed within a parent region of type "Map".');
+    end if;
 
     -- Hidden field (used for storing the selected value)
     l_html := l_html || '<input type="hidden" id="' || l_item_name || '" name="' || l_item_name || '" value="' || apex_escape.html(l_item_value) || '"/>';
@@ -51,7 +62,10 @@ begin
                                     l_item_name || '", "' || 
                                     l_item_value || '", ' || 
                                     l_json_sources || ', "' || 
-                                    attr_map_region_id || '");');
+                                    l_region_static_id || '");');
     
     apex_json.free_output;
+    exception
+    when no_data_found then
+        raise_application_error(-20000, 'ERROR: The map page item "' || l_item_name || '" must be placed within a parent region of type "Map".');
 end render_plugin;
