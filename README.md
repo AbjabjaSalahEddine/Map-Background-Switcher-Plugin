@@ -29,7 +29,7 @@ Your query must return **three columns**:
 
 - `label`: Display name for the source (e.g., _Satellite_)
 - `source_id`: Unique ID for internal tracking
-- `tiles_url`: Tile server URL (e.g., `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`)
+- `tiles_url`: Raster XYZ Tile layer URL
 
 ## 🚀 Installation
 

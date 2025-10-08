@@ -55,7 +55,7 @@ wwv_flow_imp_shared.create_plugin(
  p_id=>wwv_flow_imp.id(45336760098150352)
 ,p_plugin_type=>'ITEM TYPE'
 ,p_name=>'MAP_BG_SWITCHER6098821859'
-,p_display_name=>'Map BG switcher'
+,p_display_name=>'Map BG switcher 3.0'
 ,p_supported_component_types=>'APEX_APPLICATION_PAGE_ITEMS'
 ,p_javascript_file_urls=>'#PLUGIN_FILES#plugin_index#MIN#.js'
 ,p_css_file_urls=>'#PLUGIN_FILES#plugin_css#MIN#.css'
